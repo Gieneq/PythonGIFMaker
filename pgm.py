@@ -125,8 +125,9 @@ def build_from_tileset(path, grid_size, start_index, frames_count, bg_color):
     raise FileExistsError(f"Should be directory {path}")
 
 
-def preview(images, interval, img_size, preview_width):
+def preview(caption, images, interval, img_size, preview_width):
     pygame.init()
+    pygame.display.set_caption(caption)
     scale = preview_width/img_size[0]
     preview_size = img_size[0] * scale, img_size[1] * scale
     window = pygame.display.set_mode(preview_size)
@@ -166,11 +167,10 @@ if __name__ == '__main__':
     # print(args)
     build_parser = argparse.ArgumentParser(prog=f"{app_name} - {mode_parsed}")
     build_parser.add_argument('path', type=str)
-    build_parser.add_argument('-d', '--duration', type=float, default=1.0)
-    build_parser.add_argument('-p', '--preview_width', type=int, default=-1)
-    build_parser.add_argument('-o', '--output_name', default='out.gif')
-    build_parser.add_argument('-t', '--temp_save', action='store_true')
-    build_parser.add_argument('-w', '--width', type=int, default=-1)
+    build_parser.add_argument('-d', '--duration', type=float, default=1.0, help='Interval of animation [s]')
+    build_parser.add_argument('-p', '--preview_width', type=int, default=-1, help='Preview width, no antialiasing, -1 to turn off')
+    build_parser.add_argument('-o', '--output_name', default='out.gif', help='Name, .gif can be omitted')
+    build_parser.add_argument('-t', '--temp_save', action='store_true', help="Save frames in 'frames' directory")
 
     if mode_parsed == 'series':
         build_parser.description = "Build gif from series of images."
@@ -178,10 +178,10 @@ if __name__ == '__main__':
         images = build_from_series(p.path)
     else:
         build_parser.description = "Build gif from tileset indices."
-        build_parser.add_argument('-g', '--gridsize', type=int, nargs=2, default=[2, 2])
-        build_parser.add_argument('-s', '--start_index', type=int, default=0)
-        build_parser.add_argument('-f', '--frames_count', type=int, default=4)
-        build_parser.add_argument('-b', '--bg_color', type=str, choices=ColorCodes.values(), default='MAGENTA')
+        build_parser.add_argument('-g', '--gridsize', type=int, nargs=2, default=[2, 2], help="Number of: columns and rows")
+        build_parser.add_argument('-s', '--start_index', type=int, default=0, help="Index counting from 0 in rows")
+        build_parser.add_argument('-f', '--frames_count', type=int, default=4, help="Total number of frames")
+        build_parser.add_argument('-b', '--bg_color', type=str, choices=ColorCodes.values(), default='MAGENTA', help="Replacement for transparency")
         p = build_parser.parse_args(args=args)
         images = build_from_tileset(p.path, p.gridsize, p.start_index, p.frames_count, p.bg_color)
 
@@ -195,4 +195,4 @@ if __name__ == '__main__':
 
     if p.preview_width > -1:
         img_size = images[0].width, images[0].height
-        preview(images, p.duration / len(images), img_size, p.preview_width)
+        preview(app_name, images, p.duration / len(images), img_size, p.preview_width)
