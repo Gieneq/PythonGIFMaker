@@ -1,4 +1,4 @@
-# Python GIF Maker
+# Python GIF Maker 🐍
 
 [![Python 3.10](https://img.shields.io/badge/python-3.10-green.svg)](https://www.python.org/downloads/release/python-3100/)
 
@@ -104,3 +104,31 @@ Final result:
 Using **-t** parameter resulting frames are stored in frames **directory**:
 
 ![Images stored in directory](img/shore_dir.png)
+
+## Instalation
+
+Download using git then make venv, install requrements and run!
+
+```shell
+git clone https://github.com/Gieneq/PythonGIFMaker
+cd PythonGIFMaker
+python -m venv venv
+```
+
+Source depending on OS. Windows:
+
+```shell
+venv\Scripts\activate
+```
+
+Linux:
+```shell
+source venv/bin/activate
+```
+
+```shell
+pip install --upgrade pip
+pip install -r requrements.txt
+```
+
+Done! ⭐
