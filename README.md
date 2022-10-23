@@ -105,9 +105,9 @@ Using **-t** parameter resulting frames are stored in frames **directory**:
 
 ![Images stored in directory](img/shore_dir.png)
 
-## Instalation
+## Installation
 
-Download using git then make venv, install requrements and run!
+Download using git then make venv, install requirements and run!
 
 ```shell
 git clone https://github.com/Gieneq/PythonGIFMaker
@@ -115,13 +115,13 @@ cd PythonGIFMaker
 python -m venv venv
 ```
 
-Source depending on OS. Windows:
+Activationg venv depending on OS. On Windows:
 
 ```shell
 venv\Scripts\activate
 ```
 
-Linux:
+On Linux:
 ```shell
 source venv/bin/activate
 ```
