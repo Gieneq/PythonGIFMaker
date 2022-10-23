@@ -1,11 +1,12 @@
 from enum import Enum
 from functools import reduce
-from sys import argv
+from sys import argv, exit
 import pygame
 import argparse
 import os
 import glob
 from PIL import Image
+from itertools import cycle
 
 
 def is_image(path):
@@ -114,7 +115,6 @@ def build_from_series(path):
     raise NotADirectoryError(f"{path}")
 
 
-
 def build_from_tileset(path, grid_size, start_index, frames_count, bg_color):
     if frames_count == 0:
         raise ValueError('Set frames_count to more than 0.')
@@ -124,6 +124,31 @@ def build_from_tileset(path, grid_size, start_index, frames_count, bg_color):
         return load_images_from_tileset(path, grid_size, start_index, frames_count, bg_color)
     raise FileExistsError(f"Should be directory {path}")
 
+
+def preview(images, interval, img_size, preview_width):
+    pygame.init()
+    scale = preview_width/img_size[0]
+    preview_size = img_size[0] * scale, img_size[1] * scale
+    window = pygame.display.set_mode(preview_size)
+    # convert and scale preview
+    surfaces = (pygame.image.fromstring(i.tobytes(), i.size, i.mode) for i in images)
+    surfaces = [pygame.transform.scale(i, preview_size) for i in surfaces]
+    cycler = cycle(surfaces)
+    clock = pygame.time.Clock()
+
+    while True:
+        clock.tick(1 / interval)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                exit(0)
+        if pygame.key.get_pressed()[pygame.K_ESCAPE]:
+            exit(0)
+
+        surface = next(cycler)
+
+        window.fill(0)
+        window.blit(surface, surface.get_rect(topleft=(0, 0)))
+        pygame.display.flip()
 
 
 if __name__ == '__main__':
@@ -142,9 +167,9 @@ if __name__ == '__main__':
     build_parser = argparse.ArgumentParser(prog=f"{app_name} - {mode_parsed}")
     build_parser.add_argument('path', type=str)
     build_parser.add_argument('-d', '--duration', type=float, default=1.0)
-    build_parser.add_argument('-p', '--preview', type=int, default=-1)
+    build_parser.add_argument('-p', '--preview_width', type=int, default=-1)
     build_parser.add_argument('-o', '--output_name', default='out.gif')
-    build_parser.add_argument('-t', '--temp_save', type=bool, default=True)
+    build_parser.add_argument('-t', '--temp_save', action='store_true')
     build_parser.add_argument('-w', '--width', type=int, default=-1)
 
     if mode_parsed == 'series':
@@ -153,7 +178,7 @@ if __name__ == '__main__':
         images = build_from_series(p.path)
     else:
         build_parser.description = "Build gif from tileset indices."
-        build_parser.add_argument('-g', '--gridsize', type=int, nargs=2, default=[2,2])
+        build_parser.add_argument('-g', '--gridsize', type=int, nargs=2, default=[2, 2])
         build_parser.add_argument('-s', '--start_index', type=int, default=0)
         build_parser.add_argument('-f', '--frames_count', type=int, default=4)
         build_parser.add_argument('-b', '--bg_color', type=str, choices=ColorCodes.values(), default='MAGENTA')
@@ -165,4 +190,9 @@ if __name__ == '__main__':
 
     if p.temp_save:
         save_temp_images(images)
+
     make_gif(images, p.output_name, p.duration)
+
+    if p.preview_width > -1:
+        img_size = images[0].width, images[0].height
+        preview(images, p.duration / len(images), img_size, p.preview_width)
